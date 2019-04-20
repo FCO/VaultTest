@@ -5,13 +5,12 @@ use Routes;
 
 my Vault $vault;
 with %*ENV<VAULT_DEV_ROOT_TOKEN_ID> {
-    #$vault = Vault.new(:host<vault>, :token($_)).new-acessor: :policies["web"] until $vault;
-    say await Vault.new(
+    $vault = Vault.new(
         :token($_),
         |(:proto($_) with %*ENV<VAULT_PROTO>),
         |(:host($_)  with %*ENV<VAULT_HOST>),
         |(:port($_)  with %*ENV<VAULT_PORT>),
-    ).create-token: :policies["web"];
+    ).new-acessor: :policies["web"];
     %*ENV<VAULT_DEV_ROOT_TOKEN_ID> = "";
 }
 

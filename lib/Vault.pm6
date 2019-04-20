@@ -14,17 +14,12 @@ has Cro::HTTP::Client $.http-client .= new:
 ;
 
 method secret(Str $path, Str :$engine = "secret") {
-    $!http-client.get: "$!url/v2/$engine/$path"
+    my $resp = await $!http-client.get: "$!url/v1/$engine/data/$path";
+    my $json = await $resp.body;
+    $json<data>
 }
 
 method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
-    say "CREATE: $!url/v1/auth/token/create";
-    dd %(
-        |(:@policies  if @policies ),
-        |(:%metadata  if %metadata ),
-        |(:$ttl       if $ttl      ),
-        |(:$renewable if $renewable),
-    );
     $!http-client.post:
         "$!url/v1/auth/token/create",
         :body(%(
@@ -36,11 +31,8 @@ method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
 }
 
 method new-acessor(|c) {
-    say "new-acessor: {c}";
     my $resp  = await self.create-token(|c);
-    say "aqui: ", $resp;
     my $json  = await $resp.body;
-    say "aqui: ", $json;
     my $token = $json<auth><client_token>;
     self.new: :$token, :$!proto, :$!host, :$!port, :$!url;
 }
