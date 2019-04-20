@@ -37,9 +37,9 @@ method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
 
 method new-acessor(|c) {
     say "new-acessor: {c}";
-    my $resp  = self.create-token(|c);
+    my $resp  = await self.create-token(|c);
     say "aqui: ", $resp;
-    my $json  = await (await $resp).body;
+    my $json  = await $resp.body;
     say "aqui: ", $json;
     my $token = $json<auth><client_token>;
     self.new: :$token, :$!proto, :$!host, :$!port, :$!url;
