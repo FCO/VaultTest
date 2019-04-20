@@ -1,0 +1,21 @@
+version: '3'
+services:
+  vault:
+    image: vault
+    cap_add:
+      - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "my-very-big-and-dev-only-token"
+    ports:
+      - 8200
+  webapp:
+    build: .
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: "my-very-big-and-dev-only-token"
+      VAULT_PROTO: "http"
+      VAULT_HOST: "vault"
+      VAULT_PORT: 8200
+    depends_on:
+      - vault
+    ports:
+      - 10000

@@ -1,0 +1,15 @@
+---
+id: vault-perl6
+env:  []
+name: vault-perl6
+links:  []
+endpoints: 
+  - 
+    id: http
+    port-env: VAULT_PERL6_PORT
+    protocol: http
+    name: HTTP
+    host-env: VAULT_PERL6_HOST
+cro: 1
+entrypoint: service.p6
+...
