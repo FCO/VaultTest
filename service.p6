@@ -26,6 +26,7 @@ my Cro::Service $http = Cro::HTTP::Server.new(
     ]
 );
 $http.start;
+say "Using token: $vault.token()";
 say "Listening at http://%*ENV<VAULT_PERL6_HOST>:%*ENV<VAULT_PERL6_PORT>";
 react {
     whenever signal(SIGINT) {
