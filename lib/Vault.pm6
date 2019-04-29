@@ -30,8 +30,17 @@ method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
         ))
 }
 
+method self-renew(Str :$increment) {
+    $!http-client.post:
+        "$!url/v1/auth/token/renew-self",
+        :body(%(
+            |(:$increment if $increment),
+        ))
+}
+
 method new-acessor(|c) {
     my $resp  = await self.create-token(|c);
+    die await $resp.body if $resp.code div 200 != 1;
     my $json  = await $resp.body;
     my $token = $json<auth><client_token>;
     self.new: :$token, :$!proto, :$!host, :$!port, :$!url;
