@@ -41,7 +41,7 @@ VAULT_DEV_ROOT_TOKEN_ID=$(curl \
 
 note "TOKEN: $VAULT_DEV_ROOT_TOKEN_ID"
 
-docker-compose up -d webapp
+docker-compose up -d --build webapp
 sleep 5
 WEBAPP_URL="http://$(docker-compose port webapp 10000)"
 open $WEBAPP_URL

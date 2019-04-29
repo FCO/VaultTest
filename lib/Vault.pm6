@@ -19,7 +19,8 @@ method secret(Str $path, Str :$engine = "secret") {
     $json<data>
 }
 
-method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
+method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable, Str :$bound-cidrs) {
+    say $bound-cidrs;
     $!http-client.post:
         "$!url/v1/auth/token/create",
         :body(%(
@@ -27,6 +28,7 @@ method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable) {
             |(:%metadata  if %metadata ),
             |(:$ttl       if $ttl      ),
             |(:$renewable if $renewable),
+            |(:bound_cidrs($_) with $bound-cidrs),
         ))
 }
 
@@ -40,7 +42,7 @@ method self-renew(Str :$increment) {
 
 method new-acessor(|c) {
     my $resp  = await self.create-token(|c);
-    die await $resp.body if $resp.code div 200 != 1;
+    die await $resp.body if $resp.status div 200 != 1;
     my $json  = await $resp.body;
     my $token = $json<auth><client_token>;
     self.new: :$token, :$!proto, :$!host, :$!port, :$!url;
