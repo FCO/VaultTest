@@ -14,7 +14,7 @@ with %*ENV<VAULT_DEV_ROOT_TOKEN_ID> {
     %*ENV<VAULT_DEV_ROOT_TOKEN_ID> = "";
 }
 
-my UInt $wait = 0;
+my Bool $renew = True;
 
 my Cro::Service $http = Cro::HTTP::Server.new(
     http => <1.1>,
@@ -22,7 +22,7 @@ my Cro::Service $http = Cro::HTTP::Server.new(
         die("Missing VAULT_PERL6_HOST in environment"),
     port => %*ENV<VAULT_PERL6_PORT> ||
         die("Missing VAULT_PERL6_PORT in environment"),
-    application => routes(:$vault, :$wait),
+    application => routes(:$vault, :$renew),
     after => [
         Cro::HTTP::Log::File.new(logs => $*OUT, errors => $*ERR)
     ]
@@ -32,12 +32,12 @@ say "Listening at http://%*ENV<VAULT_PERL6_HOST>:%*ENV<VAULT_PERL6_PORT>";
 react {
     CATCH { default { .note }}
     whenever Supply.interval: 5 {
-        sleep $wait;
-        $wait = 0;
-        my $resp = await $vault.self-renew;
-        done if $resp.?status div 200 != 1;
-        say "Token $vault.token() renewed";
-        $*OUT.flush;
+        if $renew {
+            my $resp = await $vault.self-renew;
+            done if $resp.?status div 200 != 1;
+            say "Token $vault.token() renewed";
+            $*OUT.flush;
+        }
     }
     whenever signal(SIGINT) {
         say "Shutting down...";
