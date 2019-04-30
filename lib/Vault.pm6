@@ -15,20 +15,20 @@ has Cro::HTTP::Client $.http-client .= new:
 
 method secret(Str $path, Str :$engine = "secret") {
     my $resp = await $!http-client.get: "$!url/v1/$engine/data/$path";
+    die await $resp.body unless $resp.?status div 200 == 1;
     my $json = await $resp.body;
     $json<data>
 }
 
-method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable, Str :$bound-cidrs) {
-    say $bound-cidrs;
+method create-token(:@policies, :%metadata, Str :$ttl, Bool :$renewable, :@bound-cidrs) {
     $!http-client.post:
         "$!url/v1/auth/token/create",
         :body(%(
-            |(:@policies  if @policies ),
-            |(:%metadata  if %metadata ),
-            |(:$ttl       if $ttl      ),
-            |(:$renewable if $renewable),
-            |(:bound_cidrs($_) with $bound-cidrs),
+            |(:@policies                 if @policies   ),
+            |(:%metadata                 if %metadata   ),
+            |(:$ttl                      if $ttl        ),
+            |(:$renewable                if $renewable  ),
+            |(:bound_cidrs(@bound-cidrs) if @bound-cidrs),
         ))
 }
 
