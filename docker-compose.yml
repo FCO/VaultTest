@@ -11,7 +11,7 @@ services:
   webapp:
     build: .
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: "my-very-big-and-dev-only-token"
+      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_DEV_ROOT_TOKEN_ID}
       VAULT_PROTO: "http"
       VAULT_HOST: "vault"
       VAULT_PORT: 8200
